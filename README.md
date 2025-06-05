@@ -1,3 +1,19 @@
+
+```sh
+npm install
+npm run dev
+npm run build
+```
+
+Using [static hosting](https://fossengineer.com/alternatives-for-hosting-static-websites/)
+
+
+```sh
+npx wrangler pages project create slubnechwile #this will install the wrangler CLI package
+npx wrangler pages deploy dist # normally will be dist/public, but whatever <BUILD_OUTPUT_DIRECTORY>
+```
+---
+
 # Astro Sassify Template
 
 A modern, responsive Astro template with Tailwind CSS and Alpine.js integration. This template provides a solid foundation for building fast, SEO-friendly websites with a clean design system.

@@ -7,6 +7,7 @@ npm run build
 
 Using [static hosting](https://fossengineer.com/alternatives-for-hosting-static-websites/)
 
+* https://github.com/JAlcocerT/slubnechwile
 
 ```sh
 npx wrangler pages project create slubnechwile #this will install the wrangler CLI package

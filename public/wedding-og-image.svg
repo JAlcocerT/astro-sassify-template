@@ -1,0 +1,29 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="630" fill="#1A1A2E"/>
+  <!-- Decorative elements -->
+  <circle cx="1100" cy="100" r="200" fill="#4F46E5" fill-opacity="0.1"/>
+  <circle cx="100" cy="550" r="150" fill="#4F46E5" fill-opacity="0.1"/>
+  
+  <!-- Main content -->
+  <g transform="translate(600, 315) rotate(-5)">
+    <text x="-450" y="-80" font-family="Inter, sans-serif" font-size="72" font-weight="700" fill="#FFFFFF">Never Miss A</text>
+    <text x="-450" y="0" font-family="Inter, sans-serif" font-size="72" font-weight="700" fill="#FFFFFF">Wedding Moment</text>
+    <text x="-450" y="100" font-family="Inter, sans-serif" font-size="86" font-weight="800" fill="#4F46E5">360° CAPTURE</text>
+  </g>
+  
+  <!-- Decorative wedding camera icon -->
+  <g transform="translate(900, 350) scale(1.5)">
+    <path d="M80 32C88.8366 32 96 39.1634 96 48V112C96 120.837 88.8366 128 80 128H16C7.16344 128 0 120.837 0 112V48C0 39.1634 7.16344 32 16 32H80Z" fill="#4F46E5"/>
+    <path d="M56 48C66.4934 48 75 56.5066 75 67C75 77.4934 66.4934 86 56 86C45.5066 86 37 77.4934 37 67C37 56.5066 45.5066 48 56 48Z" fill="#FFFFFF"/>
+    <path d="M56 60C59.3137 60 62 62.6863 62 66C62 69.3137 59.3137 72 56 72C52.6863 72 50 69.3137 50 66C50 62.6863 52.6863 60 56 60Z" fill="#1A1A2E"/>
+  </g>
+  
+  <!-- Wedding rings icon -->
+  <g transform="translate(250, 340) scale(1.2)">
+    <circle cx="60" cy="60" r="40" stroke="#FFFFFF" stroke-width="10" fill="none"/>
+    <circle cx="90" cy="60" r="40" stroke="#FFFFFF" stroke-width="10" fill="none"/>
+  </g>
+  
+  <!-- URL -->
+  <text x="600" y="580" font-family="Inter, sans-serif" font-size="24" font-weight="500" fill="#FFFFFF" text-anchor="middle">weddingmoments.com</text>
+</svg>

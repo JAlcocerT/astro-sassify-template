@@ -82,5 +82,175 @@ const features = [
         </svg>
       </a>
     </div>
+    
+    <div class="mt-24 pt-8 border-t border-gray-200 dark:border-gray-700">
+      <div class="text-center max-w-3xl mx-auto mb-12">
+        <span class="inline-block px-4 py-1 rounded-full bg-primary-100 dark:bg-primary-900 text-primary-600 dark:text-primary-300 font-medium text-sm mb-4">
+          Share The Magic
+        </span>
+        <h2 class="mb-6 text-gray-900 dark:text-white">Ready to Experience the Future?</h2>
+        <p class="text-gray-600 dark:text-gray-300">
+          Create custom QR codes for your wedding invitations, reception tables, or thank you cards that link directly to your wedding photos and memories.
+        </p>
+      </div>
+      
+      <div id="qr-code-generator" class="max-w-4xl mx-auto">
+        <div class="grid gap-8 md:grid-cols-2">
+          <div class="w-full">
+            <div class="space-y-4">
+              <div>
+                <label for="url" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">URL to encode</label>
+                <input 
+                  type="text" 
+                  id="url" 
+                  placeholder="https://your-wedding-site.com" 
+                  class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-primary-500"
+                />
+              </div>
+              <div>
+                <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">QR Code Title</label>
+                <input 
+                  type="text" 
+                  id="title" 
+                  placeholder="Wedding Gallery" 
+                  class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-primary-500"
+                />
+              </div>
+              <button 
+                id="generate-qr"
+                class="btn-primary w-full"
+              >
+                Generate QR Code
+              </button>
+            </div>
+          </div>
+          
+          <div class="flex justify-center items-center bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
+            <div class="w-full text-center">
+              <div class="qrcode-container">
+                <h3 id="qr-title-display" class="text-center text-lg font-medium mb-2">Wedding Gallery</h3>
+                <div id="qr-container" class="flex flex-col items-center justify-center">
+                  <div id="qrcode" class="mb-2"></div>
+                  <div class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                    Scan to visit: <span id="domain-text">weddingmoments.com</span>
+                  </div>
+                </div>
+              </div>
+              
+              <button 
+                id="download-qr"
+                class="btn-secondary mt-6 flex items-center justify-center mx-auto"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                Download QR Code
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
+
+<script>
+  document.addEventListener('astro:page-load', function() {
+    // Load QR code library if not already loaded
+    if (!window.QRCode) {
+      const script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js';
+      script.onload = initQrGenerator;
+      document.head.appendChild(script);
+    } else {
+      initQrGenerator();
+    }
+
+    function initQrGenerator() {
+      const qrContainer = document.getElementById('qr-code-generator');
+      const qrcodeElement = document.getElementById('qrcode');
+      const urlInput = document.getElementById('url');
+      const titleInput = document.getElementById('title');
+      const generateBtn = document.getElementById('generate-qr');
+      const downloadBtn = document.getElementById('download-qr');
+      const domainText = document.getElementById('domain-text');
+      const titleDisplay = document.getElementById('qr-title-display');
+      
+      let currentCanvas = null;
+      
+      // Set default values
+      urlInput.value = 'https://weddingmoments.com/gallery';
+      titleInput.value = 'Wedding Gallery';
+      
+      // Update domain text
+      function updateDomainText() {
+        try {
+          const url = new URL(urlInput.value);
+          domainText.textContent = url.hostname;
+        } catch (e) {
+          domainText.textContent = urlInput.value;
+        }
+      }
+      
+      // Generate QR code
+      function generateQRCode() {
+        if (!qrcodeElement) return;
+        
+        // Clear previous QR code
+        qrcodeElement.innerHTML = '';
+        
+        if (!urlInput.value) return;
+        
+        // Update title display
+        if (titleInput.value) {
+          titleDisplay.textContent = titleInput.value;
+          titleDisplay.style.display = 'block';
+        } else {
+          titleDisplay.style.display = 'none';
+        }
+        
+        // Update domain text
+        updateDomainText();
+        
+        // Generate QR code
+        QRCode.toCanvas(
+          qrcodeElement,
+          urlInput.value,
+          {
+            width: 200,
+            margin: 1,
+            color: {
+              dark: '#000000',
+              light: '#ffffff'
+            }
+          },
+          function(error) {
+            if (error) {
+              console.error(error);
+              return;
+            }
+            currentCanvas = qrcodeElement.querySelector('canvas');
+          }
+        );
+      }
+      
+      // Download QR code
+      function downloadQRCode() {
+        if (!currentCanvas) return;
+        
+        const link = document.createElement('a');
+        const title = titleInput.value || 'qrcode';
+        link.download = `wedding-qr-${title.replace(/\s+/g, '-').toLowerCase()}.png`;
+        link.href = currentCanvas.toDataURL('image/png');
+        link.click();
+      }
+      
+      // Set up event listeners
+      if (generateBtn) generateBtn.addEventListener('click', generateQRCode);
+      if (downloadBtn) downloadBtn.addEventListener('click', downloadQRCode);
+      
+      // Generate initial QR code
+      generateQRCode();
+    }
+  });
+</script>

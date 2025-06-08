@@ -1,0 +1,64 @@
+---
+import QRCode from 'qrcode';
+
+export interface Props {
+  url: string;
+  size?: number;
+  darkColor?: string;
+  lightColor?: string;
+  className?: string;
+  errorCorrectionLevel?: 'low' | 'medium' | 'quartile' | 'high';
+  title?: string;
+}
+
+const {
+  url,
+  size = 200,
+  darkColor = '#000000',
+  lightColor = '#ffffff',
+  className = '',
+  errorCorrectionLevel = 'medium',
+  title = 'QR Code'
+} = Astro.props;
+
+// Generate QR code as data URL
+const qrCodeDataURL = await QRCode.toDataURL(url, {
+  width: size,
+  color: {
+    dark: darkColor,
+    light: lightColor
+  },
+  errorCorrectionLevel: errorCorrectionLevel
+});
+
+// Get domain from URL for display purposes
+let displayUrl = url;
+try {
+  const urlObj = new URL(url);
+  displayUrl = urlObj.hostname;
+} catch (e) {
+  // If URL parsing fails, use the original URL
+  displayUrl = url;
+}
+---
+
+<div class={`qrcode-container ${className}`}>
+  {title && <h3 class="text-center text-lg font-medium mb-2">{title}</h3>}
+  <div class="flex flex-col items-center justify-center">
+    <img 
+      src={qrCodeDataURL} 
+      alt={`QR code for ${url}`} 
+      width={size} 
+      height={size}
+      class="rounded-lg shadow-md"
+    />
+    <div class="mt-2 text-sm text-gray-600 dark:text-gray-400">Scan to visit: {displayUrl}</div>
+  </div>
+</div>
+
+<style>
+  .qrcode-container {
+    padding: 1rem;
+    border-radius: 0.5rem;
+  }
+</style>

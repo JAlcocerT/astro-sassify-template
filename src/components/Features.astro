@@ -156,18 +156,35 @@ const features = [
 
 <script>
   document.addEventListener('astro:page-load', function() {
+    console.log('Page loaded, initializing QR code generator...');
+    
     // Load QR code library if not already loaded
-    if (!window.QRCode) {
-      const script = document.createElement('script');
-      script.src = 'https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js';
-      script.onload = initQrGenerator;
-      document.head.appendChild(script);
-    } else {
-      initQrGenerator();
-    }
+    const loadQRCodeLibrary = function() {
+      return new Promise((resolve, reject) => {
+        if (window.QRCode) {
+          console.log('QRCode library already loaded');
+          resolve();
+          return;
+        }
+        
+        console.log('Loading QRCode library...');
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js';
+        script.onload = () => {
+          console.log('QRCode library loaded successfully');
+          resolve();
+        };
+        script.onerror = (err) => {
+          console.error('Failed to load QRCode library:', err);
+          reject(err);
+        };
+        document.head.appendChild(script);
+      });
+    };
 
-    function initQrGenerator() {
-      const qrContainer = document.getElementById('qr-code-generator');
+    // Initialize the QR code generator
+    const initQrGenerator = function() {
+      console.log('Initializing QR code generator UI...');
       const qrcodeElement = document.getElementById('qrcode');
       const urlInput = document.getElementById('url');
       const titleInput = document.getElementById('title');
@@ -176,14 +193,25 @@ const features = [
       const domainText = document.getElementById('domain-text');
       const titleDisplay = document.getElementById('qr-title-display');
       
+      // Check for missing elements
+      if (!qrcodeElement) console.error('QR code container (id="qrcode") not found!');
+      if (!urlInput) console.error('URL input (id="url") not found!');
+      if (!titleInput) console.error('Title input (id="title") not found!');
+      if (!generateBtn) console.error('Generate button (id="generate-qr") not found!');
+      if (!downloadBtn) console.error('Download button (id="download-qr") not found!');
+      if (!domainText) console.error('Domain text (id="domain-text") not found!');
+      if (!titleDisplay) console.error('Title display (id="qr-title-display") not found!');
+      
       let currentCanvas = null;
       
       // Set default values
-      urlInput.value = 'https://weddingmoments.com/gallery';
-      titleInput.value = 'Wedding Gallery';
+      if (urlInput) urlInput.value = 'https://weddingmoments.com/gallery';
+      if (titleInput) titleInput.value = 'Wedding Gallery';
       
       // Update domain text
       function updateDomainText() {
+        if (!urlInput || !domainText) return;
+        
         try {
           const url = new URL(urlInput.value);
           domainText.textContent = url.hostname;
@@ -194,18 +222,31 @@ const features = [
       
       // Generate QR code
       function generateQRCode() {
-        if (!qrcodeElement) return;
+        console.log('Generating QR code for URL:', urlInput?.value);
+        
+        if (!qrcodeElement) {
+          console.error('Cannot generate QR code: container element not found');
+          return;
+        }
+        
+        if (!window.QRCode) {
+          console.error('Cannot generate QR code: QRCode library not loaded');
+          return;
+        }
         
         // Clear previous QR code
         qrcodeElement.innerHTML = '';
         
-        if (!urlInput.value) return;
+        if (!urlInput || !urlInput.value) {
+          console.error('Cannot generate QR code: no URL specified');
+          return;
+        }
         
         // Update title display
-        if (titleInput.value) {
+        if (titleDisplay && titleInput && titleInput.value) {
           titleDisplay.textContent = titleInput.value;
           titleDisplay.style.display = 'block';
-        } else {
+        } else if (titleDisplay) {
           titleDisplay.style.display = 'none';
         }
         
@@ -213,44 +254,84 @@ const features = [
         updateDomainText();
         
         // Generate QR code
-        QRCode.toCanvas(
-          qrcodeElement,
-          urlInput.value,
-          {
-            width: 200,
-            margin: 1,
-            color: {
-              dark: '#000000',
-              light: '#ffffff'
+        try {
+          window.QRCode.toCanvas(
+            qrcodeElement,
+            urlInput.value,
+            {
+              width: 200,
+              margin: 1,
+              color: {
+                dark: '#000000',
+                light: '#ffffff'
+              }
+            },
+            function(error, canvas) {
+              if (error) {
+                console.error('Error generating QR code:', error);
+                return;
+              }
+              console.log('QR code generated successfully');
+              currentCanvas = canvas;
             }
-          },
-          function(error) {
-            if (error) {
-              console.error(error);
-              return;
-            }
-            currentCanvas = qrcodeElement.querySelector('canvas');
-          }
-        );
+          );
+        } catch (err) {
+          console.error('Failed to generate QR code:', err);
+        }
       }
       
       // Download QR code
       function downloadQRCode() {
-        if (!currentCanvas) return;
+        if (!currentCanvas && qrcodeElement) {
+          currentCanvas = qrcodeElement.querySelector('canvas');
+        }
         
-        const link = document.createElement('a');
-        const title = titleInput.value || 'qrcode';
-        link.download = `wedding-qr-${title.replace(/\s+/g, '-').toLowerCase()}.png`;
-        link.href = currentCanvas.toDataURL('image/png');
-        link.click();
+        if (!currentCanvas) {
+          console.error('Cannot download QR code: no canvas found');
+          return;
+        }
+        
+        try {
+          const link = document.createElement('a');
+          const title = (titleInput && titleInput.value) ? titleInput.value : 'qrcode';
+          link.download = `wedding-qr-${title.replace(/\s+/g, '-').toLowerCase()}.png`;
+          link.href = currentCanvas.toDataURL('image/png');
+          link.click();
+          console.log('QR code downloaded');
+        } catch (err) {
+          console.error('Failed to download QR code:', err);
+        }
       }
       
       // Set up event listeners
-      if (generateBtn) generateBtn.addEventListener('click', generateQRCode);
-      if (downloadBtn) downloadBtn.addEventListener('click', downloadQRCode);
+      if (generateBtn) {
+        console.log('Adding click listener to generate button');
+        generateBtn.addEventListener('click', function() {
+          console.log('Generate button clicked');
+          generateQRCode();
+        });
+      }
+      
+      if (downloadBtn) {
+        console.log('Adding click listener to download button');
+        downloadBtn.addEventListener('click', function() {
+          console.log('Download button clicked');
+          downloadQRCode();
+        });
+      }
       
       // Generate initial QR code
+      console.log('Generating initial QR code');
       generateQRCode();
-    }
+    };
+
+    // Main initialization sequence
+    loadQRCodeLibrary()
+      .then(() => {
+        initQrGenerator();
+      })
+      .catch(error => {
+        console.error('Failed to initialize QR code generator:', error);
+      });
   });
 </script>
